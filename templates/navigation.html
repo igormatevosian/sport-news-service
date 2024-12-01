@@ -1,0 +1,60 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">О спорте</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Главная</a>
+        </li>
+        {% for article_type in article_types %}
+        <li class="nav-item">
+          <a class="nav-link" href="/articles_with_type/{{ article_type.id }}"
+            >{{ article_type.name }}</a
+          >
+        </li>
+        {% endfor %}
+      </ul>
+      <ul class="navbar-nav ml-auto">
+        {% if user %}
+        <li class="nav-item">
+          <a class="nav-link" href="/user_page/{{ user.id }}">
+            <img
+              src="{{ user.picture }}"
+              class="user-logo"
+              width="30"
+              height="30"
+              alt="{{ user.name }}"
+            />
+            {{ user.name }}
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-primary" href="/create_article">Создать статью</a>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-secondary" href="/logout">
+            <span class="glyphicon glyphicon-log-out"></span> Выход
+          </a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="/login">
+            <span class="glyphicon glyphicon-log-in"></span> Вход
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

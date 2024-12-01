@@ -1,0 +1,64 @@
+{% extends "base.html" %} {% block title %}{{ author.name }}{% endblock title %}
+{% block content %}
+
+<div class="container mt-4 content-container">
+  <div class="row mb-4">
+    <div class="col-md-2">
+      <img
+        src="{{ author.picture }}"
+        alt="{{ author.name }}"
+        class="img-fluid rounded-circle"
+        style="max-width: 100%"
+      />
+    </div>
+    <div class="col-md-10">
+      <h2>{{ author.name }}</h2>
+      <p>Email: {{ author.email }}</p>
+      <p>Количество статей: {{ articles | length }}</p>
+    </div>
+  </div>
+  {% for article in articles %}
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-md-12">
+        <h1 class="featurette-heading">{{ article.title }}</h1>
+        <p class="lead">{{ article.short_description }}</p>
+        <p>{{ article.description }}</p>
+        <p>
+          Автор:
+          <a href="/user_page/{{ article.owner.id }}">
+            {{ article.owner.name }}</a
+          >
+        </p>
+        {% if is_author %}
+        <button
+          class="btn btn-danger"
+          onclick="deleteArticle({{ article.id }})"
+        >
+          Удалить
+        </button>
+        {% endif %}
+      </div>
+    </div>
+    <hr class="featurette-divider">
+  </div>
+  {% endfor %}
+</div>
+{% endblock content %} {% block scripts %}
+<script>
+  async function deleteArticle(articleId) {
+    const response = await fetch(`/articles/${articleId}`, {
+      method: "DELETE",
+    });
+
+    if (response.ok) {
+      // Article deleted successfully
+      alert("Статья удалена успешно");
+      location.reload(); // Reload the page to reflect the changes
+    } else {
+      // Handle error
+      alert("Ошибка при удалении статьи");
+    }
+  }
+</script>
+{% endblock scripts %}

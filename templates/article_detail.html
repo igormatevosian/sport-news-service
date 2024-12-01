@@ -1,0 +1,107 @@
+{% extends "base.html" %} {% block title %}{{ article.title }}{% endblock title
+%} {% block content %}
+
+<div class="container mt-4 content-container">
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-md-12">
+        <h1 class="featurette-heading">{{ article.title }}</h1>
+        <p class="lead">{{ article.short_description }}</p>
+        <p>{{ article.description }}</p>
+        <p>
+          Автор:
+          <a href="/user_page/{{ article.owner.id }}">
+            {{ article.owner.name }}</a
+          >
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if user %}
+<div class="container mt-4 content-container">
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-md-12">
+        <h3>Оставить комментарий</h3>
+        <textarea
+          id="comment-input"
+          rows="3"
+          class="form-control mt-2"
+          placeholder="Напишите комментарий..."
+        ></textarea>
+        <button id="send-btn" class="btn btn-primary mt-2">Отправить</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="container mt-4 content-container">
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-md-12">
+        <h3>Комментарии</h3>
+        <div id="comments-container">
+          <!-- Здесь будут отображаться комментарии -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %} {% block scripts %}
+<script>
+  async function fetchUserName(userId) {
+    try {
+      const response = await fetch(`/users/${userId}`);
+      const user = await response.json();
+      return user.name;
+    } catch (error) {
+      console.error('Error fetching user name:', error);
+      return 'Unknown';
+    }
+  }
+
+  const articleId = {{ article.id }};
+  const userId = {% if user %} {{ user.id }} {% else %} null {% endif %};
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  const ws = new WebSocket(`${wsProtocol}://${window.location.host}/ws/${articleId}`);
+
+  ws.onmessage = function(event) {
+    const commentData = JSON.parse(event.data);
+    const messages = document.getElementById('comments-container');
+    const comment = document.createElement('div');
+    comment.className = 'comment';
+    comment.innerHTML = `<strong>${commentData.userName}:</strong> ${commentData.comment}`;
+    messages.appendChild(comment);
+  };
+
+  {% if user %}
+  document.getElementById('send-btn').onclick = function() {
+    const input = document.getElementById('comment-input');
+    const comment = input.value;
+    ws.send(JSON.stringify({ userId, comment }));
+    input.value = '';
+  };
+  {% endif %}
+
+  // Функция для получения всех комментариев для статьи
+  async function fetchComments() {
+    try {
+      const response = await fetch(`/article_comments/article/${articleId}`);
+      const data = await response.json();
+      const comments = await Promise.all(data.map(async (comment) => {
+        const userName = await fetchUserName(comment.commenter_id);
+        return `<div class="comment"><strong>${userName}:</strong> ${comment.content}</div>`;
+      }));
+      document.getElementById('comments-container').innerHTML = comments.join('');
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  }
+
+  fetchComments(); // Вызов функции при загрузке страницы для получения комментариев
+</script>
+{% endblock scripts %}

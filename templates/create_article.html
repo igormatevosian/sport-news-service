@@ -1,0 +1,100 @@
+{% extends "base.html" %} {% block title %}Создать статью{% endblock title %} {%
+block content %}
+
+<div class="container mt-4 content-container">
+  <h2>Создание новой статьи</h2>
+  <form id="create-article-form">
+    <div class="mb-3">
+      <label for="title" class="form-label">Заголовок</label>
+      <input
+        type="text"
+        class="form-control"
+        id="title"
+        name="title"
+        required
+      />
+    </div>
+    <div class="mb-3">
+      <label for="short_description" class="form-label">Краткое описание</label>
+      <textarea
+        class="form-control"
+        id="short_description"
+        name="short_description"
+        rows="2"
+      ></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="description" class="form-label">Описание</label>
+      <textarea
+        class="form-control"
+        id="description"
+        name="description"
+        rows="4"
+        required
+      ></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="article_type" class="form-label">Тип статьи</label>
+      <select
+        class="form-control"
+        id="article_type"
+        name="article_type"
+        required
+      >
+        <!-- Options will be populated by JavaScript -->
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Создать</button>
+  </form>
+</div>
+{% endblock content %} {% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    const response = await fetch("/article_types/");
+    const articleTypes = await response.json();
+    const articleTypeSelect = document.getElementById("article_type");
+
+    articleTypes.forEach((type) => {
+      const option = document.createElement("option");
+      option.value = type.id;
+      option.textContent = type.name;
+      articleTypeSelect.appendChild(option);
+    });
+  });
+
+  document
+    .getElementById("create-article-form")
+    .addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const form = event.target;
+      const formData = new FormData(form);
+      const data = {
+        title: formData.get("title"),
+        short_description: formData.get("short_description"),
+        description: formData.get("description"),
+      };
+
+      const response = await fetch(
+        `/articles/?` +
+          new URLSearchParams({
+            article_type_id: formData.get("article_type"),
+          }),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (response.ok) {
+        alert("Статья создана успешно");
+        window.location.href = `/`;
+      } else {
+        alert("Ошибка при создании статьи");
+      }
+    });
+</script>
+{% endblock scripts %}
