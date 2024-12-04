@@ -1,9 +1,9 @@
 import json
 
-from fastapi import APIRouter, WebSocketDisconnect, WebSocket, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 
-from app.db import services, schemas
+from app.db import schemas, services
 from app.dependencies import get_db
 
 router = APIRouter(tags=["sockets"])
@@ -29,7 +29,9 @@ manager = ConnectionManager()
 
 
 @router.websocket("/ws/{article_id}")
-async def websocket_endpoint(article_id: int, websocket: WebSocket, db: Session = Depends(get_db)):
+async def websocket_endpoint(
+    article_id: int, websocket: WebSocket, db: Session = Depends(get_db)
+):
     await manager.connect(websocket)
     try:
         while True:
@@ -43,7 +45,8 @@ async def websocket_endpoint(article_id: int, websocket: WebSocket, db: Session 
                     user_service = services.UserService(db)
                     user_name = user_service.get_user(user_id).name
                     message = json.dumps(
-                        {"userName": user_name, "comment": comment_text})
+                        {"userName": user_name, "comment": comment_text}
+                    )
                     await manager.broadcast(message)
             except json.JSONDecodeError:
                 print("Invalid JSON format received")
@@ -56,7 +59,7 @@ async def save_comment(db: Session, article_id: int, comment_text: str, user_id:
         comment = schemas.ArticleCommentCreate(content=comment_text)
         comment_service = services.ArticleCommentService(db)
         comment_service.create_article_comment(
-            comment=comment, article_id=article_id, commenter_id=user_id)
+            comment=comment, article_id=article_id, commenter_id=user_id
+        )
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error saving comment: {e}")
+        raise HTTPException(status_code=500, detail=f"Error saving comment: {e}")

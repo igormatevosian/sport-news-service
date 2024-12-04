@@ -1,21 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
-from app.db import services, schemas
+from app.db import schemas, services
 from app.dependencies import get_db
 
-router = APIRouter(prefix="/article_types",
-                   tags=["article_types"])
+router = APIRouter(prefix="/article_types", tags=["article_types"])
 
 
-limiter = Limiter(key_func=get_remote_address)
 
 
 @router.get("/", response_model=list[schemas.ArticleType])
-@limiter.limit("1000/minute")
-def read_article_types(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_article_types(
+skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
+):
     """
     Retrieve a list of article types.
 
@@ -30,9 +27,16 @@ def read_article_types(request: Request, skip: int = 0, limit: int = 100, db: Se
     return article_type_service.get_article_types(skip=skip, limit=limit)
 
 
-@router.post("/", response_model=schemas.ArticleType, responses={400: {"description": "Operation forbidden"}})
-@limiter.limit("1000/minute")
-def create_article_type(request: Request, article_type: schemas.ArticleTypeCreate, db: Session = Depends(get_db)):
+@router.post(
+    "/",
+    response_model=schemas.ArticleType,
+    responses={400: {"description": "Operation forbidden"}},
+)
+def create_article_type(
+
+    article_type: schemas.ArticleTypeCreate,
+    db: Session = Depends(get_db),
+):
     """
     Create a new article type.
 
@@ -48,8 +52,9 @@ def create_article_type(request: Request, article_type: schemas.ArticleTypeCreat
 
 
 @router.delete("/{article_type_id}", response_model=bool)
-@limiter.limit("1000/minute")
-def delete_article_type(request: Request, article_type_id: int, db: Session = Depends(get_db)):
+def delete_article_type(
+article_type_id: int, db: Session = Depends(get_db)
+):
     """
     Delete article type by ID.
 

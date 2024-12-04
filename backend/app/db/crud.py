@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from app.db import models
-from app.db import schemas
+
+from app.db import models, schemas
 
 
 # Операции CRUD для модели User
@@ -39,26 +39,53 @@ def get_article_by_id(db: Session, id: int):
 
 
 def get_article_by_user_id_and_title(db: Session, user_id: int, title: str):
-    return db.query(models.Article).filter(models.Article.owner_id == user_id, models.Article.title == title).first()
+    return (
+        db.query(models.Article)
+        .filter(models.Article.owner_id == user_id, models.Article.title == title)
+        .first()
+    )
 
 
 def get_articles_by_user_id(db: Session, user_id: int, skip: int = 0, limit: int = 100):
-    return db.query(models.Article).filter(models.Article.owner_id == user_id).order_by(
-        models.Article.id.desc()).offset(skip).limit(limit).all()
+    return (
+        db.query(models.Article)
+        .filter(models.Article.owner_id == user_id)
+        .order_by(models.Article.id.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
-def get_articles_by_article_type_id(db: Session, article_type_id: int, skip: int = 0, limit: int = 100):
-    return db.query(models.Article).filter(models.Article.article_type_id == article_type_id).order_by(
-        models.Article.id.desc()).offset(skip).limit(limit).all()
+def get_articles_by_article_type_id(
+    db: Session, article_type_id: int, skip: int = 0, limit: int = 100
+):
+    return (
+        db.query(models.Article)
+        .filter(models.Article.article_type_id == article_type_id)
+        .order_by(models.Article.id.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def get_articles(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Article).order_by(models.Article.id.desc()).offset(skip).limit(limit).all()
+    return (
+        db.query(models.Article)
+        .order_by(models.Article.id.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
-def create_user_article(db: Session, article: schemas.ArticleCreate, user_id: int, article_type_id: int):
+def create_user_article(
+    db: Session, article: schemas.ArticleCreate, user_id: int, article_type_id: int
+):
     db_article = models.Article(
-        **article.model_dump(), owner_id=user_id, article_type_id=article_type_id)
+        **article.model_dump(), owner_id=user_id, article_type_id=article_type_id
+    )
     db.add(db_article)
     db.commit()
     db.refresh(db_article)
@@ -66,8 +93,7 @@ def create_user_article(db: Session, article: schemas.ArticleCreate, user_id: in
 
 
 def delete_article(db: Session, article_id: int):
-    article = db.query(models.Article).filter(
-        models.Article.id == article_id).first()
+    article = db.query(models.Article).filter(models.Article.id == article_id).first()
     if article:
         db.delete(article)
         db.commit()
@@ -77,11 +103,19 @@ def delete_article(db: Session, article_id: int):
 
 # Операции CRUD для модели ArticleType
 def get_article_type_by_id(db: Session, article_type_id: int):
-    return db.query(models.ArticleType).filter(models.ArticleType.id == article_type_id).first()
+    return (
+        db.query(models.ArticleType)
+        .filter(models.ArticleType.id == article_type_id)
+        .first()
+    )
 
 
 def get_article_type_by_name(db: Session, article_type_name: str):
-    return db.query(models.ArticleType).filter(models.ArticleType.name == article_type_name).first()
+    return (
+        db.query(models.ArticleType)
+        .filter(models.ArticleType.name == article_type_name)
+        .first()
+    )
 
 
 def get_article_types(db: Session, skip: int = 0, limit: int = 100):
@@ -97,8 +131,11 @@ def create_article_type(db: Session, article_type: schemas.ArticleTypeCreate):
 
 
 def delete_article_type(db: Session, article_type_id: int):
-    article_type = db.query(models.ArticleType).filter(
-        models.ArticleType.id == article_type_id).first()
+    article_type = (
+        db.query(models.ArticleType)
+        .filter(models.ArticleType.id == article_type_id)
+        .first()
+    )
     if article_type:
         db.delete(article_type)
         db.commit()
@@ -111,19 +148,39 @@ def get_article_comments(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.ArticleComment).offset(skip).limit(limit).all()
 
 
-def get_article_comments_by_article_id(db: Session, article_id: int, skip: int = 0, limit: int = 100):
-    return db.query(models.ArticleComment).filter(
-        models.ArticleComment.article_id == article_id).offset(skip).limit(limit).all()
+def get_article_comments_by_article_id(
+    db: Session, article_id: int, skip: int = 0, limit: int = 100
+):
+    return (
+        db.query(models.ArticleComment)
+        .filter(models.ArticleComment.article_id == article_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
-def get_article_comments_by_user_id(db: Session, user_id: int, skip: int = 0, limit: int = 100):
-    return db.query(models.ArticleComment).filter(
-        models.ArticleComment.commenter_id == user_id).offset(skip).limit(limit).all()
+def get_article_comments_by_user_id(
+    db: Session, user_id: int, skip: int = 0, limit: int = 100
+):
+    return (
+        db.query(models.ArticleComment)
+        .filter(models.ArticleComment.commenter_id == user_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
-def create_article_comment(db: Session, comment: schemas.ArticleCommentCreate, article_id: int, commenter_id: int):
+def create_article_comment(
+    db: Session,
+    comment: schemas.ArticleCommentCreate,
+    article_id: int,
+    commenter_id: int,
+):
     db_comment = models.ArticleComment(
-        **comment.model_dump(), article_id=article_id, commenter_id=commenter_id)
+        **comment.model_dump(), article_id=article_id, commenter_id=commenter_id
+    )
     db.add(db_comment)
     db.commit()
     db.refresh(db_comment)
@@ -131,8 +188,11 @@ def create_article_comment(db: Session, comment: schemas.ArticleCommentCreate, a
 
 
 def delete_article_comment(db: Session, comment_id: int):
-    comment = db.query(models.ArticleComment).filter(
-        models.ArticleComment.id == comment_id).first()
+    comment = (
+        db.query(models.ArticleComment)
+        .filter(models.ArticleComment.id == comment_id)
+        .first()
+    )
     if comment:
         db.delete(comment)
         db.commit()

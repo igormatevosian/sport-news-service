@@ -1,20 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+from sqlalchemy.orm import Session
 
-from app.db import services, schemas
+from app.db import schemas, services
 from app.dependencies import get_db
-
 
 router = APIRouter(prefix="/article_comments", tags=["article_comments"])
 
-limiter = Limiter(key_func=get_remote_address)
-
-
 @router.get("/", response_model=list[schemas.ArticleComment])
-@limiter.limit("1000/minute")
-def read_article_comments(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_article_comments(
+    skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
+):
     """
     Retrieve a list of article comments.
 
@@ -29,9 +26,17 @@ def read_article_comments(request: Request, skip: int = 0, limit: int = 100, db:
     return article_comment_service.get_article_comments(skip=skip, limit=limit)
 
 
+limiter = Limiter(key_func=get_remote_address)
+
+
 @router.get("/article/{article_id}", response_model=list[schemas.ArticleComment])
-@limiter.limit("1000/minute")
-def read_article_comments_by_article_id(request: Request, article_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_article_comments_by_article_id(
+
+    article_id: int,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+):
     """
     Retrieve article comments by article ID.
 
@@ -44,12 +49,19 @@ def read_article_comments_by_article_id(request: Request, article_id: int, skip:
     - List of article comments belonging to the specified article.
     """
     article_comment_service = services.ArticleCommentService(db)
-    return article_comment_service.get_article_comments_by_article_id(article_id, skip=skip, limit=limit)
+    return article_comment_service.get_article_comments_by_article_id(
+        article_id, skip=skip, limit=limit
+    )
 
 
 @router.get("/user/{user_id}", response_model=list[schemas.ArticleComment])
-@limiter.limit("1000/minute")
-def read_article_comments_by_user_id(request: Request, user_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_article_comments_by_user_id(
+
+    user_id: int,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+):
     """
     Retrieve article comments by user ID.
 
@@ -62,12 +74,18 @@ def read_article_comments_by_user_id(request: Request, user_id: int, skip: int =
     - List of article comments posted by the specified user.
     """
     article_comment_service = services.ArticleCommentService(db)
-    return article_comment_service.get_article_comments_by_user_id(user_id, skip=skip, limit=limit)
+    return article_comment_service.get_article_comments_by_user_id(
+        user_id, skip=skip, limit=limit
+    )
 
 
 @router.post("/", response_model=schemas.ArticleComment)
-@limiter.limit("1000/minute")
-def create_article_comment(request: Request, comment: schemas.ArticleCommentCreate, article_id: int, commenter_id: int, db: Session = Depends(get_db)):
+def create_article_comment(
+    comment: schemas.ArticleCommentCreate,
+    article_id: int,
+    commenter_id: int,
+    db: Session = Depends(get_db),
+):
     """
     Create a new article comment.
 
@@ -80,12 +98,15 @@ def create_article_comment(request: Request, comment: schemas.ArticleCommentCrea
     - **201 Created**: Article comment created successfully.
     """
     article_comment_service = services.ArticleCommentService(db)
-    return article_comment_service.create_article_comment(comment, article_id, commenter_id)
+    return article_comment_service.create_article_comment(
+        comment, article_id, commenter_id
+    )
 
 
 @router.delete("/{comment_id}", response_model=bool)
-@limiter.limit("1000/minute")
-def delete_article_comment(request: Request, comment_id: int, db: Session = Depends(get_db)):
+def delete_article_comment(
+    comment_id: int, db: Session = Depends(get_db)
+):
     """
     Delete article comment by ID.
 
@@ -99,6 +120,5 @@ def delete_article_comment(request: Request, comment_id: int, db: Session = Depe
     article_comment_service = services.ArticleCommentService(db)
     result = article_comment_service.delete_article_comment(comment_id)
     if not result:
-        raise HTTPException(
-            status_code=404, detail="Article comment not found")
+        raise HTTPException(status_code=404, detail="Article comment not found")
     return result

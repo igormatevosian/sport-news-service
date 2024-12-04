@@ -1,12 +1,12 @@
-from pydantic import BaseModel, Field
-from typing import List, Optional
 from datetime import datetime
+
+from pydantic import BaseModel
 
 
 class ArticleBase(BaseModel):
     title: str
-    short_description: Optional[str] = None
-    description: Optional[str] = None
+    short_description: str | None = None
+    description: str | None = None
 
 
 class ArticleCreate(ArticleBase):
@@ -25,8 +25,8 @@ class Article(ArticleBase):
 
 class UserBase(BaseModel):
     email: str
-    name: Optional[str] = None
-    picture: Optional[str] = None
+    name: str | None = None
+    picture: str | None = None
 
 
 class UserCreate(UserBase):
@@ -36,7 +36,7 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     is_active: bool
-    articles: List[Article] = []
+    articles: list[Article] = []
 
     class Config:
         from_attributes = True

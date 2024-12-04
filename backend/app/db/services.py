@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from app.db import crud
-from app.db import schemas
+
+from app.db import crud, schemas
 
 
 class UserService:
@@ -36,13 +36,19 @@ class ArticleService:
     def get_articles_by_user_id(self, user_id: int, skip: int = 0, limit: int = 100):
         return crud.get_articles_by_user_id(self.db, user_id, skip, limit)
 
-    def get_articles_by_article_type_id(self, article_type_id: int, skip: int = 0, limit: int = 100):
-        return crud.get_articles_by_article_type_id(self.db, article_type_id, skip, limit)
+    def get_articles_by_article_type_id(
+        self, article_type_id: int, skip: int = 0, limit: int = 100
+    ):
+        return crud.get_articles_by_article_type_id(
+            self.db, article_type_id, skip, limit
+        )
 
     def get_articles(self, skip: int = 0, limit: int = 100):
         return crud.get_articles(self.db, skip, limit)
 
-    def create_user_article(self, article: schemas.ArticleCreate, user_id: int, article_type_id: int):
+    def create_user_article(
+        self, article: schemas.ArticleCreate, user_id: int, article_type_id: int
+    ):
         return crud.create_user_article(self.db, article, user_id, article_type_id)
 
     def delete_article(self, article_id: int):
@@ -76,13 +82,19 @@ class ArticleCommentService:
     def get_article_comments(self, skip: int = 0, limit: int = 100):
         return crud.get_article_comments(self.db, skip, limit)
 
-    def get_article_comments_by_article_id(self, article_id: int, skip: int = 0, limit: int = 100):
+    def get_article_comments_by_article_id(
+        self, article_id: int, skip: int = 0, limit: int = 100
+    ):
         return crud.get_article_comments_by_article_id(self.db, article_id, skip, limit)
 
-    def get_article_comments_by_user_id(self, user_id: int, skip: int = 0, limit: int = 100):
+    def get_article_comments_by_user_id(
+        self, user_id: int, skip: int = 0, limit: int = 100
+    ):
         return crud.get_article_comments_by_user_id(self.db, user_id, skip, limit)
 
-    def create_article_comment(self, comment: schemas.ArticleCommentCreate, article_id: int, commenter_id: int):
+    def create_article_comment(
+        self, comment: schemas.ArticleCommentCreate, article_id: int, commenter_id: int
+    ):
         return crud.create_article_comment(self.db, comment, article_id, commenter_id)
 
     def delete_article_comment(self, comment_id: int):

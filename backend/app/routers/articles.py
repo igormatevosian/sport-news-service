@@ -1,20 +1,24 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
-from app.db import services, schemas
-from app.dependencies import get_db, get_current_user
+from app.db import schemas, services
+from app.dependencies import get_current_user, get_db
 
-router = APIRouter(prefix="/articles",
-                   tags=["articles"])
-
-limiter = Limiter(key_func=get_remote_address)
+router = APIRouter(prefix="/articles", tags=["articles"])
 
 
-@router.post("/", response_model=schemas.Article, responses={400: {"description": "Operation forbidden"}})
-@limiter.limit("1000/minute")
-def create_article(request: Request, article_type_id: int, article: schemas.ArticleCreate, db: Session = Depends(get_db)):
+
+@router.post(
+    "/",
+    response_model=schemas.Article,
+    responses={400: {"description": "Operation forbidden"}},
+)
+def create_article(
+    request: Request,
+    article_type_id: int,
+    article: schemas.ArticleCreate,
+    db: Session = Depends(get_db),
+):
     """
     Create a new article.
 
@@ -30,12 +34,15 @@ def create_article(request: Request, article_type_id: int, article: schemas.Arti
     if not user:
         raise HTTPException(status_code=403, detail="Forbidden")
     article_service = services.ArticleService(db)
-    return article_service.create_user_article(user_id=user.id, article_type_id=article_type_id, article=article)
+    return article_service.create_user_article(
+        user_id=user.id, article_type_id=article_type_id, article=article
+    )
 
 
 @router.get("/", response_model=list[schemas.Article])
-@limiter.limit("1000/minute")
-def read_articles(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_articles(
+skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
+):
     """
     Retrieve a list of articles.
 
@@ -51,8 +58,13 @@ def read_articles(request: Request, skip: int = 0, limit: int = 100, db: Session
 
 
 @router.get("/user/{user_id}", response_model=list[schemas.Article])
-@limiter.limit("1000/minute")
-def read_articles_by_user_id(request: Request, user_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_articles_by_user_id(
+
+    user_id: int,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+):
     """
     Retrieve articles by user ID.
 
@@ -69,8 +81,12 @@ def read_articles_by_user_id(request: Request, user_id: int, skip: int = 0, limi
 
 
 @router.get("/article_type/{article_type_id}", response_model=list[schemas.Article])
-@limiter.limit("1000/minute")
-def read_articles_by_article_type_id(request: Request, article_type_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_articles_by_article_type_id(
+    article_type_id: int,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+):
     """
     Retrieve articles by article type ID.
 
@@ -83,12 +99,13 @@ def read_articles_by_article_type_id(request: Request, article_type_id: int, ski
     - List of articles belonging to the specified article type.
     """
     article_service = services.ArticleService(db)
-    return article_service.get_articles_by_article_type_id(article_type_id, skip=skip, limit=limit)
+    return article_service.get_articles_by_article_type_id(
+        article_type_id, skip=skip, limit=limit
+    )
 
 
 @router.delete("/{article_id}", response_model=bool)
-@limiter.limit("1000/minute")
-def delete_article(request: Request, article_id: int, db: Session = Depends(get_db)):
+def delete_article(article_id: int, db: Session = Depends(get_db)):
     """
     Delete article by ID.
 

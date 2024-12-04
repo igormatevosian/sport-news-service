@@ -1,20 +1,21 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
-from app.db import services, schemas
+from app.db import schemas, services
 from app.dependencies import get_db
 
-router = APIRouter(prefix="/users",
-                   tags=["users"])
-
-limiter = Limiter(key_func=get_remote_address)
+router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.post("/", response_model=schemas.User, responses={400: {"description": "Operation forbidden"}})
-@limiter.limit("1000/minute")
-def create_user(request: Request, user: schemas.UserCreate, db: Session = Depends(get_db)):
+
+@router.post(
+    "/",
+    response_model=schemas.User,
+    responses={400: {"description": "Operation forbidden"}},
+)
+def create_user(
+     user: schemas.UserCreate, db: Session = Depends(get_db)
+):
     """
     Create a new user.
 
@@ -30,8 +31,10 @@ def create_user(request: Request, user: schemas.UserCreate, db: Session = Depend
 
 
 @router.get("/", response_model=list[schemas.User])
-@limiter.limit("1000/minute")
-def read_users(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+
+def read_users(
+    skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
+):
     """
     Retrieve a list of users.
 
@@ -46,9 +49,13 @@ def read_users(request: Request, skip: int = 0, limit: int = 100, db: Session = 
     return user_service.get_users(skip=skip, limit=limit)
 
 
-@router.get("/{user_id}", response_model=schemas.User, responses={404: {"description": "Not found"}})
-@limiter.limit("1000/minute")
-def read_user(request: Request, user_id: int, db: Session = Depends(get_db)):
+@router.get(
+    "/{user_id}",
+    response_model=schemas.User,
+    responses={404: {"description": "Not found"}},
+)
+
+def read_user( user_id: int, db: Session = Depends(get_db)):
     """
     Retrieve user by ID.
 
@@ -67,8 +74,7 @@ def read_user(request: Request, user_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/{user_id}", response_model=bool)
-@limiter.limit("1000/minute")
-def delete_user(request: Request, user_id: int, db: Session = Depends(get_db)):
+def delete_user( user_id: int, db: Session = Depends(get_db)):
     """
     Delete user by ID.
 

@@ -1,14 +1,14 @@
 import os
 
+from authlib.integrations.starlette_client import OAuth
+from dotenv import load_dotenv
 from fastapi import Request
+from fastapi.templating import Jinja2Templates
+from starlette.config import Config
 
 from app.db import services
 from app.db.db import SessionLocal
-from app.db.models import User, ArticleType
-from authlib.integrations.starlette_client import OAuth
-from starlette.config import Config
-from dotenv import load_dotenv
-from fastapi.templating import Jinja2Templates
+from app.db.models import ArticleType, User
 
 load_dotenv()
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -26,11 +26,11 @@ def get_db():
 
 
 def get_current_user(request: Request) -> User | None:
-    user = request.session.get('user')
+    user = request.session.get("user")
     if user:
         db = SessionLocal()
         user_service = services.UserService(db)
-        user = user_service.get_user_by_email(user['email'])
+        user = user_service.get_user_by_email(user["email"])
         db.close()
         return user
 
@@ -42,13 +42,15 @@ def get_article_types() -> list[ArticleType]:
     return article_types
 
 
-config_data = {'GOOGLE_CLIENT_ID': GOOGLE_CLIENT_ID,
-               'GOOGLE_CLIENT_SECRET': GOOGLE_CLIENT_SECRET}
+config_data = {
+    "GOOGLE_CLIENT_ID": GOOGLE_CLIENT_ID,
+    "GOOGLE_CLIENT_SECRET": GOOGLE_CLIENT_SECRET,
+}
 starlette_config = Config(environ=config_data)
 
 oauth = OAuth(starlette_config)
 oauth.register(
-    name='google',
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={'scope': 'openid email profile'},
+    name="google",
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs={"scope": "openid email profile"},
 )
