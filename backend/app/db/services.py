@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-from . import crud, schemas
+from app.db import crud
+from app.db import schemas
 
 
 class UserService:

@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
-from db import services
-from dependencies import get_db, get_current_user, templates, get_article_types
+from app.db import services
+from app.dependencies import get_db, get_current_user, templates, get_article_types
 
 router = APIRouter(tags=["pages"])
 

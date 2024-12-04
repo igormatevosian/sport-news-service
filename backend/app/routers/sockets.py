@@ -3,8 +3,8 @@ import json
 from fastapi import APIRouter, WebSocketDisconnect, WebSocket, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from db import schemas, services
-from dependencies import get_db
+from app.db import services, schemas
+from app.dependencies import get_db
 
 router = APIRouter(tags=["sockets"])
 

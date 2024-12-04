@@ -10,9 +10,9 @@ from slowapi.util import get_remote_address
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_429_TOO_MANY_REQUESTS
 
-from db import models
-from db.db import engine
-from routers import users, articles, article_types, article_comments, security, pages, sockets
+from app.db import models
+from app.db.db import engine
+from app.routers import users, articles, article_types, article_comments, security, pages, sockets
 
 
 load_dotenv()
@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter

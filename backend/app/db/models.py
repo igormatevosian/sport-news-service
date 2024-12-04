@@ -3,12 +3,10 @@ from datetime import datetime
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from .db import Base
-
 
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
-from .db import Base
+from app.db.db import Base
 
 
 class User(Base):

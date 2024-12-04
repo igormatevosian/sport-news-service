@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-from . import models, schemas
+from app.db import models
+from app.db import schemas
 
 
 # Операции CRUD для модели User
@@ -42,11 +43,13 @@ def get_article_by_user_id_and_title(db: Session, user_id: int, title: str):
 
 
 def get_articles_by_user_id(db: Session, user_id: int, skip: int = 0, limit: int = 100):
-    return db.query(models.Article).filter(models.Article.owner_id == user_id).order_by(models.Article.id.desc()).offset(skip).limit(limit).all()
+    return db.query(models.Article).filter(models.Article.owner_id == user_id).order_by(
+        models.Article.id.desc()).offset(skip).limit(limit).all()
 
 
 def get_articles_by_article_type_id(db: Session, article_type_id: int, skip: int = 0, limit: int = 100):
-    return db.query(models.Article).filter(models.Article.article_type_id == article_type_id).order_by(models.Article.id.desc()).offset(skip).limit(limit).all()
+    return db.query(models.Article).filter(models.Article.article_type_id == article_type_id).order_by(
+        models.Article.id.desc()).offset(skip).limit(limit).all()
 
 
 def get_articles(db: Session, skip: int = 0, limit: int = 100):
@@ -109,11 +112,13 @@ def get_article_comments(db: Session, skip: int = 0, limit: int = 100):
 
 
 def get_article_comments_by_article_id(db: Session, article_id: int, skip: int = 0, limit: int = 100):
-    return db.query(models.ArticleComment).filter(models.ArticleComment.article_id == article_id).offset(skip).limit(limit).all()
+    return db.query(models.ArticleComment).filter(
+        models.ArticleComment.article_id == article_id).offset(skip).limit(limit).all()
 
 
 def get_article_comments_by_user_id(db: Session, user_id: int, skip: int = 0, limit: int = 100):
-    return db.query(models.ArticleComment).filter(models.ArticleComment.commenter_id == user_id).offset(skip).limit(limit).all()
+    return db.query(models.ArticleComment).filter(
+        models.ArticleComment.commenter_id == user_id).offset(skip).limit(limit).all()
 
 
 def create_article_comment(db: Session, comment: schemas.ArticleCommentCreate, article_id: int, commenter_id: int):

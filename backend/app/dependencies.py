@@ -2,9 +2,9 @@ import os
 
 from fastapi import Request
 
-from db import services
-from db.db import SessionLocal
-from db.models import User, ArticleType
+from app.db import services
+from app.db.db import SessionLocal
+from app.db.models import User, ArticleType
 from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from dotenv import load_dotenv
@@ -14,7 +14,7 @@ load_dotenv()
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="app/templates")
 
 
 def get_db():

@@ -5,8 +5,8 @@ from starlette.responses import RedirectResponse
 from authlib.integrations.starlette_client import OAuthError
 from sqlalchemy.orm import Session
 
-from db import crud, schemas
-from dependencies import get_db, oauth
+from app.db import crud, schemas
+from app.dependencies import get_db, oauth
 
 router = APIRouter(tags=["security"])
 
