@@ -1,40 +1,33 @@
-import os
-
-from dotenv import load_dotenv
+import sentry_sdk
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from slowapi.errors import RateLimitExceeded
-from starlette.middleware.sessions import SessionMiddleware
+from fastapi.routing import APIRoute
+from starlette.middleware.cors import CORSMiddleware
 
-from app.db import models
-from app.db.db import engine
-from app.routers import (
-    article_comments,
-    article_types,
-    articles,
-    pages,
-    security,
-    sockets,
-    users,
+from app.api.main import api_router
+from app.core.config import settings
+
+
+def custom_generate_unique_id(route: APIRoute) -> str:
+    return f"{route.tags[0]}-{route.name}"
+
+
+if settings.SENTRY_DSN and settings.ENVIRONMENT != "local":
+    sentry_sdk.init(dsn=str(settings.SENTRY_DSN), enable_tracing=True)
+
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    generate_unique_id_function=custom_generate_unique_id,
 )
 
-load_dotenv()
+# Set all CORS enabled origins
+if settings.all_cors_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.all_cors_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-app = FastAPI()
-app.include_router(users.router)
-app.include_router(articles.router)
-app.include_router(article_types.router)
-app.include_router(article_comments.router)
-app.include_router(security.router)
-app.include_router(pages.router)
-app.include_router(sockets.router)
-
-SECRET_KEY = os.getenv("SECRET_KEY")
-
-app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
-
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
-
-
-# models.Base.metadata.drop_all(bind=engine)
-models.Base.metadata.create_all(bind=engine)
+app.include_router(api_router, prefix=settings.API_V1_STR)
